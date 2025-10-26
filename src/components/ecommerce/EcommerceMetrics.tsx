@@ -66,6 +66,12 @@ export const EcommerceMetrics = () => {
   const [cookies] = useCookies(["@token"]);
   const router = useRouter();
 
+  useEffect(() => {
+    setHasInstagram(false);
+    setHasTel(false);
+    console.log(knowledgeBase);
+  }, []);
+
   // Loading states
   const [loadingTelegram, setLoadingTelegram] = useState(false);
   const [loadingKB, setLoadingKB] = useState(false);
@@ -131,6 +137,8 @@ export const EcommerceMetrics = () => {
         headers: { Authorization: `Bearer ${cookies["@token"]}` },
       });
 
+      console.log("User Profile:", response.data);
+
       // Проверяем, есть ли username — это косвенный признак, что база знаний может быть
       // Но лучше проверять отдельно
     } catch (error) {
@@ -150,8 +158,12 @@ export const EcommerceMetrics = () => {
         setKnowledgeBase(response.data[0]);
         setHasKnowledgeBase(true);
       }
-    } catch (error: any) {
-      if (error.response?.status !== 404) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status !== 404) {
+          console.error("Error fetching knowledge base:", error);
+        }
+      } else {
         console.error("Error fetching knowledge base:", error);
       }
     }
@@ -211,8 +223,12 @@ export const EcommerceMetrics = () => {
         const err = await response.text();
         alert("Ошибка: " + err);
       }
-    } catch (error) {
-      alert("Ошибка сети.");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("Ошибка сети:", error);
+      } else {
+        console.error("Ошибка сети:", error);
+      }
     } finally {
       setLoadingTelegram(false);
     }
