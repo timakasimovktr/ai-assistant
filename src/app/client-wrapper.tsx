@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SidebarProvider } from "@/context/SidebarContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
