@@ -5,7 +5,6 @@ import MonthlySalesChartTG from "@/components/ecommerce/MonthlySalesChartTG";
 import axios from "axios";
 import Button from "../ui/button/Button";
 import { useCookies } from "react-cookie";
-import { useRouter } from "next/navigation";
 
 export const EcommerceMetrics = () => {
   type EcommerceMetric = {
@@ -64,7 +63,6 @@ export const EcommerceMetrics = () => {
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
 
   const [cookies] = useCookies(["@token"]);
-  const router = useRouter();
 
   useEffect(() => {
     setHasInstagram(false);
@@ -170,11 +168,6 @@ export const EcommerceMetrics = () => {
   };
 
   const handleGetTelegramInfo = async () => {
-    if (!cookies["@token"]) {
-      router.push("/signin");
-      return;
-    }
-
     try {
       const response = await axios.get("http://94.230.232.40:8000/api/v1/tg-ai/me", {
         headers: { Authorization: `Bearer ${cookies["@token"]}` },
@@ -188,15 +181,11 @@ export const EcommerceMetrics = () => {
   };
 
   useEffect(() => {
-    if (cookies["@token"]) {
-      getInfo();
-      handleGetTelegramInfo();
-      fetchKnowledgeBase();
-      fetchUserProfile();
-    } else {
-      router.push("/signin");
-    }
-  }, [cookies["@token"]]);
+    getInfo();
+    handleGetTelegramInfo();
+    fetchKnowledgeBase();
+    fetchUserProfile();
+  }, []);
 
   const handleRegisterPhoneTelegram = async () => {
     if (!formData.phone) {
