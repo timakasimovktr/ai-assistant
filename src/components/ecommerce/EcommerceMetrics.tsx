@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { GroupIcon } from "@/icons";
 import MonthlySalesChartTG from "@/components/ecommerce/MonthlySalesChartTG";
 import axios from "axios";
@@ -69,7 +69,7 @@ export const EcommerceMetrics = () => {
     setHasInstagram(false);
     setHasTel(false);
     console.log(knowledgeBase);
-  }, []);
+  }, [knowledgeBase]);
 
   // Loading states
   const [loadingTelegram, setLoadingTelegram] = useState(false);
@@ -129,7 +129,7 @@ export const EcommerceMetrics = () => {
     }
   };
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     if (!cookies["@token"]) return;
 
     try {
@@ -144,9 +144,9 @@ export const EcommerceMetrics = () => {
     } catch (error) {
       console.error("Error fetching user profile:", error);
     }
-  };
+  }, [cookies]);
 
-  const fetchKnowledgeBase = async () => {
+  const fetchKnowledgeBase = useCallback(async () => {
     if (!cookies["@token"]) return;
 
     try {
@@ -167,9 +167,11 @@ export const EcommerceMetrics = () => {
         console.error("Error fetching knowledge base:", error);
       }
     }
-  };
+  }, [cookies]);
 
-  const handleGetTelegramInfo = async () => {
+  const handleGetTelegramInfo = useCallback(async () => {
+    if (!cookies["@token"]) return;
+
     try {
       const response = await axios.get("http://94.230.232.40:8000/api/v1/tg-ai/me", {
         headers: { Authorization: `Bearer ${cookies["@token"]}` },
@@ -180,14 +182,14 @@ export const EcommerceMetrics = () => {
     } catch (error) {
       console.error("Error fetching Telegram info:", error);
     }
-  };
+  }, [cookies]);
 
   useEffect(() => {
     getInfo();
     handleGetTelegramInfo();
     fetchKnowledgeBase();
     fetchUserProfile();
-  }, []);
+  }, [fetchKnowledgeBase, fetchUserProfile, handleGetTelegramInfo]);
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone: string) => /^\+\d{10,15}$/.test(phone);
