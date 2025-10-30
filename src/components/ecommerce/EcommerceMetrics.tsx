@@ -788,11 +788,11 @@ export const EcommerceMetrics = () => {
                   <label>Онлайн-магазин</label>
                 </div>
                 <div className="flex gap-3 mt-6">
-                  <Button variant="primary" onClick={handlePrevStep} className="flex-1">
-                    Назад
-                  </Button>
                   <Button variant="green" onClick={handleNextStep} className="flex-1">
                     Далее
+                  </Button>
+                  <Button variant="primary" onClick={handlePrevStep} className="flex-1">
+                    Назад
                   </Button>
                 </div>
               </div>
