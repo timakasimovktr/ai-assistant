@@ -113,13 +113,6 @@ export const EcommerceMetrics = () => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  // Handler for checkboxes
-  const handleCheckbox = (field: keyof typeof initialFormData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.checked }));
-  };
-
   const getInfo = async () => {
     try {
       const response = await axios.get("/api/bookings");
@@ -315,6 +308,11 @@ export const EcommerceMetrics = () => {
 
     if (!validatePhone(contactPhone)) {
       toast.error("Введите корректный телефон (например, +998901234567).");
+      return;
+    }
+
+    if (!formData.location) {
+      toast.error("Введите корректный адрес (например, ул. Пушкина, д. 1).");
       return;
     }
 
@@ -783,10 +781,6 @@ export const EcommerceMetrics = () => {
                   className="border p-3 rounded-lg w-full"
                   placeholder="Ташкент, ул. Пушкина, 10"
                 />
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" checked={formData.isOnline} onChange={handleCheckbox("isOnline")} />
-                  <label>Онлайн-магазин</label>
-                </div>
                 <div className="flex gap-3 mt-6">
                   <Button variant="green" onClick={handleNextStep} className="flex-1">
                     Далее
