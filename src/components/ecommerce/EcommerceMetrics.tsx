@@ -5,6 +5,7 @@ import MonthlySalesChartTG from "@/components/ecommerce/MonthlySalesChartTG";
 import axios from "axios";
 import Button from "../ui/button/Button";
 import { useCookies } from "react-cookie";
+import { toast } from "react-toastify";
 
 export const EcommerceMetrics = () => {
   type EcommerceMetric = {
@@ -93,6 +94,7 @@ export const EcommerceMetrics = () => {
     assistantName: "",
     brandName: "",
     location: "",
+    mission: "",
     isOnline: false,
     contactPhone: "",
     contactEmail: "",
@@ -186,6 +188,10 @@ export const EcommerceMetrics = () => {
     fetchKnowledgeBase();
     fetchUserProfile();
   }, []);
+
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePhone = (phone: string) => /^\+\d{10,15}$/.test(phone);
+  const validateTelegram = (tg: string) => /^@[\w]{5,32}$/.test(tg);
 
   const handleRegisterPhoneTelegram = async () => {
     if (!formData.phone) {
@@ -290,33 +296,52 @@ export const EcommerceMetrics = () => {
 
   // НОВАЯ ФУНКЦИЯ: Создание базы знаний
   const handleCreateKnowledgeBase = async () => {
-    if (
-      !formData.assistantName ||
-      !formData.brandName ||
-      !formData.contactPhone ||
-      !formData.contactEmail ||
-      !formData.generalInfo
-    ) {
-      alert("Заполните все обязательные поля.");
+    const {
+      assistantName,
+      brandName,
+      mission,
+      contactPhone,
+      contactEmail,
+      contactTelegram,
+      generalInfo,
+    } = formData;
+
+    if (!assistantName || !brandName || !mission || !contactPhone || !contactEmail || !contactTelegram || !generalInfo) {
+      toast.error("Заполните все обязательные поля.");
+      return;
+    }
+
+    if (!validatePhone(contactPhone)) {
+      toast.error("Введите корректный телефон (например, +998901234567).");
+      return;
+    }
+
+    if (!validateEmail(contactEmail)) {
+      toast.error("Введите корректный email.");
+      return;
+    }
+
+    if (!validateTelegram(contactTelegram)) {
+      toast.error("Введите корректный Telegram (например, @username).");
       return;
     }
 
     setLoadingKB(true);
     try {
       const payload = {
-        name: formData.assistantName,
-        company: formData.brandName,
-        description: formData.location || "Не указано",
-        mission: "Не указано",
+        name: assistantName,
+        company: brandName,
+        description: formData.location || "",
+        mission: mission,
         tone: "Дружелюбный и экспертный",
         contact: {
-          phone: formData.contactPhone,
-          email: formData.contactEmail,
+          phone: contactPhone,
+          email: contactEmail,
           site: formData.contactWebsite || "",
           instagram: formData.contactInstagram || "",
-          telegram: formData.contactTelegram || "",
+          telegram: contactTelegram,
         },
-        kb: formData.generalInfo,
+        kb: generalInfo,
       };
 
       const response = await fetch("http://94.230.232.40:8000/api/v1/knowledge-base/", {
@@ -335,20 +360,55 @@ export const EcommerceMetrics = () => {
         setModalType(null);
         setStep(1);
         setFormData(initialFormData);
-        alert("База знаний успешно создана!");
+        toast.success("База знаний успешно создана!");
       } else {
         const err = await response.text();
-        alert("Ошибка при создании базы знаний: " + err);
+        toast.error("Ошибка при создании: " + err);
       }
     } catch (error) {
       console.error(error);
-      alert("Ошибка сети.");
+      toast.error("Ошибка сети.");
     } finally {
       setLoadingKB(false);
     }
   };
 
-  const handleNextStep = () => setStep((prev) => prev + 1);
+  const handleNextStep = () => {
+    if (modalType === "kb") {
+      if (step === 1) {
+        if (!formData.assistantName || !formData.brandName) {
+          toast.error("Заполните имя ассистента и название бренда.");
+          return;
+        }
+      }
+      if (step === 2) {
+        if (!formData.mission) {
+          toast.error("Укажите миссию компании.");
+          return;
+        }
+      }
+      if (step === 3) {
+        if (!formData.contactPhone || !formData.contactEmail || !formData.contactTelegram) {
+          toast.error("Заполните телефон, email и Telegram.");
+          return;
+        }
+        if (!validatePhone(formData.contactPhone)) {
+          toast.error("Некорректный телефон.");
+          return;
+        }
+        if (!validateEmail(formData.contactEmail)) {
+          toast.error("Некорректный email.");
+          return;
+        }
+        if (!validateTelegram(formData.contactTelegram)) {
+          toast.error("Telegram должен быть в формате @username.");
+          return;
+        }
+      }
+    }
+    setStep((prev) => prev + 1);
+  };
+
   const handlePrevStep = () => setStep((prev) => prev - 1);
 
   // Spinner компонент
@@ -518,19 +578,12 @@ export const EcommerceMetrics = () => {
       >
         <div className="flex items-center">
           <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-            <svg
-              className="text-gray-800 size-6 dark:text-white/90"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4zm0 16c-4.41 0-8-1.34-8-3v-2c2.21 1.66 5.31 2 8 2s5.79-.34 8-2v2c0 1.66-3.59 3-8 3zm0-6c-4.41 0-8-1.34-8-3v-2c2.21 1.66 5.31 2 8 2s5.79-.34 8-2v2c0 1.66-3.59 3-8 3zm0-6c-4.41 0-8-1.34-8-3s3.59-3 8-3s8 1.34 8 3s-3.59 3-8 3z"
-              />
+            <svg className="text-gray-800 size-6 dark:text-white/90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 2C6.48 2 2 3.79 2 6v12c0 2.21 4.48 4 10 4s10-1.79 10-4V6c0-2.21-4.48-4-10-4zm0 16c-4.41 0-8-1.34-8-3v-2c2.21 1.66 5.31 2 8 2s5.79-.34 8-2v2c0 1.66-3.59 3-8 3zm0-6c-4.41 0-8-1.34-8-3v-2c2.21 1.66 5.31 2 8 2s5.79-.34 8-2v2c0 1.66-3.59 3-8 3zm0-6c-4.41 0-8-1.34-8-3s3.59-3 8-3s8 1.34 8 3s-3.59 3-8 3z" />
             </svg>
           </div>
           <h3 className="ml-3 text-lg font-semibold text-gray-800 dark:text-white/90">
-            База знаний 
+            База знаний
           </h3>
         </div>
 
@@ -543,18 +596,17 @@ export const EcommerceMetrics = () => {
           <Button
             onClick={() => {
               if (!telegramInfo) {
-                alert("Сначала подключите Телеграм аккаунт.");
+                toast.error("Сначала подключите Telegram аккаунт.");
                 return;
-              } else {
-                setModalType("kb");
-                setStep(1);
               }
+              setModalType("kb");
+              setStep(1);
             }}
-            variant="green"
+            variant={hasKnowledgeBase ? "green" : "red"}
             size="md"
             className="w-60 mt-8"
           >
-            {hasKnowledgeBase ? "Добавить базу знаний" : "Настроить  базу знаний"}
+            {hasKnowledgeBase ? "Редактировать" : "Настроить базу знаний"}
           </Button>
         </div>
       </div>
@@ -684,19 +736,21 @@ export const EcommerceMetrics = () => {
             {/* Knowledge Base Steps */}
             {modalType === "kb" && step === 1 && (
               <div className="flex flex-col gap-4 font-medium text-gray-700 dark:text-gray-300">
-                <label>Имя ассистента:</label>
+                <label>Имя ассистента *</label>
                 <input
                   type="text"
                   value={formData.assistantName}
                   onChange={handleChange("assistantName")}
                   className="border p-3 rounded-lg w-full"
+                  placeholder="Например: Ассистент Алишера"
                 />
-                <label>Название бренда:</label>
+                <label>Название бренда *</label>
                 <input
                   type="text"
                   value={formData.brandName}
                   onChange={handleChange("brandName")}
                   className="border p-3 rounded-lg w-full"
+                  placeholder="ООО Ромашка"
                 />
                 <div className="flex gap-3 mt-6">
                   <Button variant="green" onClick={handleNextStep} className="flex-1">
@@ -711,16 +765,25 @@ export const EcommerceMetrics = () => {
 
             {modalType === "kb" && step === 2 && (
               <div className="flex flex-col gap-4 font-medium text-gray-700 dark:text-gray-300">
-                <label>Локация:</label>
+                <label>Миссия компании *</label>
+                <textarea
+                  value={formData.mission}
+                  onChange={handleChange("mission")}
+                  rows={3}
+                  className="border p-3 rounded-lg w-full"
+                  placeholder="Например: Доставлять радость через качественные товары..."
+                />
+                <label>Локация</label>
                 <input
                   type="text"
                   value={formData.location}
                   onChange={handleChange("location")}
                   className="border p-3 rounded-lg w-full"
+                  placeholder="Ташкент, ул. Пушкина, 10"
                 />
                 <div className="flex items-center gap-2">
                   <input type="checkbox" checked={formData.isOnline} onChange={handleCheckbox("isOnline")} />
-                  <label>Онлайн</label>
+                  <label>Онлайн-магазин</label>
                 </div>
                 <div className="flex gap-3 mt-6">
                   <Button variant="primary" onClick={handlePrevStep} className="flex-1">
@@ -735,40 +798,44 @@ export const EcommerceMetrics = () => {
 
             {modalType === "kb" && step === 3 && (
               <div className="flex flex-col gap-4 font-medium text-gray-700 dark:text-gray-300">
-                <label>Контакты:</label>
+                <label>Контактный телефон *</label>
                 <input
                   type="tel"
                   value={formData.contactPhone}
                   onChange={handleChange("contactPhone")}
-                  placeholder="Телефон"
+                  placeholder="+998901234567"
                   className="border p-3 rounded-lg w-full"
                 />
+                <label>Email *</label>
                 <input
                   type="email"
                   value={formData.contactEmail}
                   onChange={handleChange("contactEmail")}
-                  placeholder="Email"
+                  placeholder="info@company.uz"
                   className="border p-3 rounded-lg w-full"
                 />
-                <input
-                  type="text"
-                  value={formData.contactInstagram}
-                  onChange={handleChange("contactInstagram")}
-                  placeholder="Instagram"
-                  className="border p-3 rounded-lg w-full"
-                />
+                <label>Telegram *</label>
                 <input
                   type="text"
                   value={formData.contactTelegram}
                   onChange={handleChange("contactTelegram")}
-                  placeholder="Telegram"
+                  placeholder="@company_uz"
                   className="border p-3 rounded-lg w-full"
                 />
+                <label>Instagram</label>
+                <input
+                  type="text"
+                  value={formData.contactInstagram}
+                  onChange={handleChange("contactInstagram")}
+                  placeholder="@company_uz"
+                  className="border p-3 rounded-lg w-full"
+                />
+                <label>Сайт</label>
                 <input
                   type="url"
                   value={formData.contactWebsite}
                   onChange={handleChange("contactWebsite")}
-                  placeholder="Сайт"
+                  placeholder="https://company.uz"
                   className="border p-3 rounded-lg w-full"
                 />
                 <div className="flex gap-3 mt-6">
@@ -784,14 +851,15 @@ export const EcommerceMetrics = () => {
 
             {modalType === "kb" && step === 4 && (
               <div className="flex flex-col gap-4 font-medium text-gray-700 dark:text-gray-300">
-                <label>Общая информация (kb):</label>
+                <label>Общая информация (kb) *</label>
                 <textarea
                   value={formData.generalInfo}
                   onChange={handleChange("generalInfo")}
                   rows={6}
                   className="border p-3 rounded-lg w-full"
+                  placeholder="Опишите товары, услуги, особенности..."
                 />
-                <a href="/example.txt" download className="text-green-500 hover:underline">
+                <a href="/example.txt" download className="text-green-500 hover:underline text-sm">
                   Скачать пример .txt
                 </a>
                 <div className="flex gap-3 mt-6">
