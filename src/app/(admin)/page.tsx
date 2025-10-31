@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
 import React from "react";
 import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 
 // import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
 // import { GroupIcon } from "@/icons";
@@ -30,7 +29,6 @@ export const metadata: Metadata = {
 export default function Ecommerce() {
   return (
     <div className="w-full grid gap-4 md:gap-6">
-      <ToastContainer position="top-right" autoClose={3000} />
       <div className="col-span-12 space-y-6 xl:col-span-12">
         <EcommerceMetrics />
       </div>

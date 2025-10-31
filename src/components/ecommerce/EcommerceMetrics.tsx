@@ -6,6 +6,7 @@ import axios from "axios";
 import Button from "../ui/button/Button";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export const EcommerceMetrics = () => {
   type EcommerceMetric = {
@@ -62,8 +63,8 @@ export const EcommerceMetrics = () => {
   const [hasTel, setHasTel] = useState(false);
   const [hasKnowledgeBase, setHasKnowledgeBase] = useState(false);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase | null>(null);
-
   const [cookies] = useCookies(["@token"]);
+  const router = useRouter();
 
   useEffect(() => {
     setHasInstagram(false);
@@ -593,6 +594,7 @@ export const EcommerceMetrics = () => {
               ? "База знаний настроена. Вы можете отредактировать."
               : "Настройте базу знаний для работы ассистента."}
           </span>
+          <div className="flex items-end gap-4 flex-wrap">
           <Button
             onClick={() => {
               if (!telegramInfo) {
@@ -606,8 +608,21 @@ export const EcommerceMetrics = () => {
             size="md"
             className="w-60 mt-8"
           >
-            {hasKnowledgeBase ? "Редактировать" : "Настроить базу знаний"}
+            {hasKnowledgeBase ? "Добавить базу знаний" : "Настроить базу знаний"}
           </Button>
+          {hasKnowledgeBase ? (<Button
+            onClick={() => {
+              router.push("/knowledge")
+            }}
+            variant="primary"
+            size="md"
+            className="w-60"
+          >
+            Перейти к базе знаний
+          </Button>) : null}
+
+          </div>
+
         </div>
       </div>
 
@@ -782,11 +797,11 @@ export const EcommerceMetrics = () => {
                   placeholder="Ташкент, ул. Пушкина, 10"
                 />
                 <div className="flex gap-3 mt-6">
-                  <Button variant="green" onClick={handleNextStep} className="flex-1">
-                    Далее
-                  </Button>
                   <Button variant="primary" onClick={handlePrevStep} className="flex-1">
                     Назад
+                  </Button>
+                  <Button variant="green" onClick={handleNextStep} className="flex-1">
+                    Далее
                   </Button>
                 </div>
               </div>

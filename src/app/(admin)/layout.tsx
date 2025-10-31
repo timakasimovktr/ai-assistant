@@ -3,6 +3,8 @@
 import Backdrop from "@/layout/Backdrop";
 import AppHeader from "@/layout/AppHeader";
 import { CookiesProvider } from "react-cookie";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import React from "react";
 
 export default function AdminLayout({
@@ -20,6 +22,9 @@ export default function AdminLayout({
 
   return (
     <CookiesProvider>
+      <div className="position-fixed top-0 right-0 z-999">
+        <ToastContainer position="top-right" autoClose={3000} />
+      </div>
       <div className="min-h-screen xl:flex">
         {/* Sidebar and Backdrop */}
         {/* <AppSidebar /> */}
