@@ -46,7 +46,7 @@ export default function SignInForm() {
 
       const data = await res.json();
 
-      if (res.ok && data.access_token) {
+      if (data.access_token) {
         setCookie("@token", data.access_token, { path: "/" });
         setCookie("username", username, { path: "/" });
         router.push("/");
