@@ -32,6 +32,7 @@ export default function SignInForm() {
     }
 
     try {
+      debugger;
       const body = new URLSearchParams();
       body.append("username", username);
       body.append("password", password);
