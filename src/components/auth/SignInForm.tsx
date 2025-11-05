@@ -50,8 +50,9 @@ export default function SignInForm() {
       if (data.access_token) {
         setCookie("@token", data.access_token, { path: "/" });
         setCookie("username", username, { path: "/" });
-        alert("Привет сучка")
-        router.push("/");
+        setTimeout(() => {
+          router.push("/");
+        }, 300);
       } else {
         alert("Ошибка при входе: " + (data.detail || "Неизвестная ошибка"));
       }
