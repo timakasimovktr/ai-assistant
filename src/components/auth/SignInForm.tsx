@@ -5,10 +5,12 @@ import { EyeCloseIcon, EyeIcon } from "@/icons";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useCookies } from "react-cookie";
+import { useRouter } from "next/navigation";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [cookies, setCookie] = useCookies(["@token", "username"]);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,9 +50,7 @@ export default function SignInForm() {
       if (data.access_token) {
         setCookie("@token", data.access_token, { path: "/" });
         setCookie("username", username, { path: "/" });
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 300);
+        router.push("/");
       } else {
         alert("Ошибка при входе: " + (data.detail || "Неизвестная ошибка"));
       }
