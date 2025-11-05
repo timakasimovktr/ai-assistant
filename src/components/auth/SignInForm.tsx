@@ -38,12 +38,12 @@ export default function SignInForm() {
       body.append("password", password);
 
       const res = await fetch("http://94.230.232.40:8000/api/v1/auth/login", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ username, password }),
-});
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: body.toString(),
+      });
 
       const data = await res.json();
 
