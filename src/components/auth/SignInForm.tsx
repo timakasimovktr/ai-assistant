@@ -51,7 +51,7 @@ export default function SignInForm() {
         setCookie("@token", data.access_token, { path: "/" });
         setCookie("username", username, { path: "/" });
         setTimeout(() => {
-          router.push("/");
+          window.location.href = "/";
         }, 300);
       } else {
         alert("Ошибка при входе: " + (data.detail || "Неизвестная ошибка"));
